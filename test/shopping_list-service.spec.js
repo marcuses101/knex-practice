@@ -67,7 +67,7 @@ describe(`shoppingListService object`, () => {
       const id = 1;
       const referenceItem = testItems.find((item) => item.id == id);
       return shoppingListService
-        .getItemById(id)
+        .getItemById(db,id)
         .then((actual) => expect(actual).to.eql(referenceItem));
     });
 
@@ -75,14 +75,14 @@ describe(`shoppingListService object`, () => {
       const idToUpdate = 2;
       const newItem = {
         name: "beef",
-        price: "15.25",
+        price: 15.25,
         date_added: new Date(),
         checked: false,
         category: "Lunch",
       };
       return shoppingListService
         .updateItem(db, idToUpdate, newItem)
-        .then(() => shoppingListService.getItemById(idToUpdate))
+        .then(() => shoppingListService.getItemById(db, idToUpdate))
         .then((actual) => {
           expect(actual).to.eql({
             id: idToUpdate,
@@ -95,7 +95,7 @@ describe(`shoppingListService object`, () => {
       const itemId = 2;
       return shoppingListService
         .deleteItem(db, itemId)
-        .then(() => shoppingListService.getFullList())
+        .then(() => shoppingListService.getFullList(db))
         .then((actual) => {
           const filteredList = testItems.filter((item) => item.id != itemId);
           expect(actual).to.eql(filteredList);
@@ -104,13 +104,19 @@ describe(`shoppingListService object`, () => {
   });
 
   context("Shopping list table is empty", () => {
+
+    it(`getFullList() resolves to an empty array from 'shopping_list' table`,()=>{
+      return shoppingListService.getFullList(db)
+      .then(actual=>expect(actual).to.eql([]))
+    })
+
     it(`insertItem() resolve with item including id from 'shopping_list' table`, () => {
       const itemToInsert = {
         name: "Chickpeas",
         price: 2,
         date_added: new Date(),
         checked: false,
-        category: "lunch",
+        category: "Lunch",
       };
       return shoppingListService
         .insertItem(db, itemToInsert)

@@ -1,9 +1,20 @@
 const shoppingListService = {
-  getFullList(){return Promise.resolve('Full list')},
-  getItemById(){return Promise.resolve('Item by Id')},
-  updateItem(){return Promise.resolve('Update Item')},
-  insertItem(){return Promise.resolve('Inserted Item')},
-  deleteItem(){return Promise.resolve('full list excluding deleted item')},
-}
+  getFullList(knex) {
+    return knex.select("*").from("shopping_list");
+  },
+  getItemById(knex, id) {
+    return knex.select("*").from("shopping_list").where({ id }).first();
+  },
+  updateItem(knex, id, item) {
+    return knex('shopping_list').where({id}).update(item);
+  },
+  async insertItem(knex, item) {
+    const rows = await knex("shopping_list").insert(item).returning("*");
+    return rows[0];
+  },
+  deleteItem(knex,id) {
+    return knex('shopping_list').where({id}).delete();
+  },
+};
 
-module.exports = shoppingListService
+module.exports = shoppingListService;
